@@ -1,8 +1,6 @@
-Here is a clean, ready-to-paste `README.md` that removes duplicates, fixes wording, and matches the app behavior including the Markov fallback.
+# Regime Aware Pairs Trader
 
-# Regime Aware Pairs Trader, Streamlit App
-
-Explore a simple mean reversion pairs strategy with and without a market stress switch. Select two tickers, choose a date range, set spread and entry rules, then configure a regime filter. Prices are pulled from Yahoo Finance through `yfinance`. The app computes a hedge ratio and spread, normalizes it into a z score, and backtests two variants:
+This app explores a simple mean reversion pairs strategy with and without a market stress switch. Select two tickers, choose a date range, set spread and entry rules, then configure a regime filter. Prices are pulled from Yahoo Finance through `yfinance`. The app computes a hedge ratio and spread, normalizes it into a z score, and backtests two variants:
 
 * **Strategy A, Always On**: trade whenever the z score crosses the entry threshold, exit at zero. An optional stop closes trades when the z score becomes too extreme.
 * **Strategy B, Regime Aware**: the same entry and exit rules, but orders only when the market is calm. Calm is detected either by a two state Markov switching model fitted to daily returns of a market index (default SPY), or by a simple VIX threshold. Hysteresis thresholds control when the filter turns on and off. Optional position scaling targets a specific annualized volatility.

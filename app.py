@@ -58,19 +58,25 @@ def compute_hedge_ratio(
             X = sm.add_constant(x_w) if include_intercept else x_w.values[:, None]
             try:
                 res = sm.OLS(y_w.values, X).fit()
-                p = res.params
+                # params is a Series labelled by column name when X is a DataFrame,
+                # so read it by position
+                p = np.asarray(res.params)
                 if include_intercept:
-                    intercepts.append(p[0]); slopes.append(p[1])
+                    ic_i, hr_i = float(p[0]), float(p[1])
                 else:
-                    intercepts.append(0.0); slopes.append(p[0])
+                    ic_i, hr_i = 0.0, float(p[0])
             except Exception:
-                slopes.append(slopes[-1] if slopes else 1.0)
-                intercepts.append(intercepts[-1] if intercepts else 0.0)
+                # e.g. a one-row window, where add_constant skips the constant
+                hr_i = slopes[-1] if slopes else 1.0
+                ic_i = intercepts[-1] if intercepts else 0.0
+            # append both together so the two lists always stay the same length
+            slopes.append(hr_i)
+            intercepts.append(ic_i)
         return pd.Series(slopes, index=y.index), pd.Series(intercepts, index=y.index)
 
     X = sm.add_constant(x) if include_intercept else x.values[:, None]
     res = sm.OLS(y.values, X).fit()
-    params = res.params
+    params = np.asarray(res.params)
     if include_intercept:
         return pd.Series(float(params[1]), index=y.index), pd.Series(float(params[0]), index=y.index)
     return pd.Series(float(params[0]), index=y.index), pd.Series(0.0, index=y.index)
@@ -230,7 +236,8 @@ def backtest_pair(
 
 def mini_assessment(a: Dict[str, float], b: Dict[str, float]) -> str:
     out = []
-    if b["Max Drawdown"] < a["Max Drawdown"]:
+    # drawdowns are negative, so a higher value means a smaller drawdown
+    if b["Max Drawdown"] > a["Max Drawdown"]:
         out.append(f"Regime-aware reduced max drawdown {a['Max Drawdown']:.1%} → {b['Max Drawdown']:.1%}.")
     else:
         out.append(f"Regime-aware increased max drawdown {a['Max Drawdown']:.1%} → {b['Max Drawdown']:.1%}.")

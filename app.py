@@ -228,7 +228,7 @@ def backtest_pair(
         "Cumulative Return": float(results["Equity"].iloc[-1] - 1.0),
         "Sharpe Ratio": float(sharpe) if not np.isnan(sharpe) else np.nan,
         "Max Drawdown": float(dd.min()),
-        "# Trades": int(sum(1 for t in trades if t[1] is not None)),
+        "Number of Trades": int(sum(1 for t in trades if t[1] is not None)),
         "% Days Active": float(np.mean(results["Position"] != 0)),
     }
     return {"results": results, "summary": summary, "trades": trades}
@@ -337,19 +337,19 @@ def main() -> None:
     st.subheader("Performance Summary")
     summary_df = pd.DataFrame(
         {
-            "Metric": ["Cumulative Return", "Sharpe Ratio", "Max Drawdown", "# Trades", "% Days Active"],
+            "Metric": ["Cumulative Return", "Sharpe Ratio", "Max Drawdown", "Number of Trades", "% Days Active"],
             "Always-On": [
                 f"{res_a['summary']['Cumulative Return']:.2%}",
                 "NaN" if np.isnan(res_a['summary']['Sharpe Ratio']) else f"{res_a['summary']['Sharpe Ratio']:.2f}",
                 f"{res_a['summary']['Max Drawdown']:.2%}",
-                f"{res_a['summary']['# Trades']}",
+                f"{res_a['summary']['Number of Trades']}",
                 f"{res_a['summary']['% Days Active']:.2%}",
             ],
             "Regime-Aware": [
                 f"{res_b['summary']['Cumulative Return']:.2%}",
                 "NaN" if np.isnan(res_b['summary']['Sharpe Ratio']) else f"{res_b['summary']['Sharpe Ratio']:.2f}",
                 f"{res_b['summary']['Max Drawdown']:.2%}",
-                f"{res_b['summary']['# Trades']}",
+                f"{res_b['summary']['Number of Trades']}",
                 f"{res_b['summary']['% Days Active']:.2%}",
             ],
         }
